@@ -30,9 +30,9 @@ sf::Text nrid[9][9];//Text elemendid mis näitavad numbreid laual
 
 /**
  * @brief seab valmis enamuse ekraanile joonistatava (taust, numbrid)
- * 
+ * EI OLE KASUTUSES
  */
-void initJoonistatav(){
+void initJoonistatav(){ //sf::Texture
     
     sf::Vertex trellid[20][2]; //jooned numbrite vahel
     for (int i = 0; i < 10; i++)
@@ -61,7 +61,7 @@ void initJoonistatav(){
                 muudetav[i][j] = false;
                 nrid[i][j].setString(std::to_string(laud[i][j]));
                 nrid[i][j].setStyle(sf::Text::Bold);
-                nrid[i][j].setFillColor({56,64,45});
+                nrid[i][j].setFillColor({56,84,45});
             }
             
             //et nr'id oleksid kenasti ruutude sees
@@ -76,7 +76,7 @@ void initJoonistatav(){
     if (!taust.create(wh, wh))
     {
         std::cout << "taustaga error" << std::endl;
-        return;
+        //return;
     }
 
     taust.clear();
@@ -105,14 +105,15 @@ void initJoonistatav(){
     //TODO muutumatud nr'id, et ei peaks iga kord eraldi neid joonistama
     
     taust.display();
+    //return taust.getTexture();
 }
 
 /**
- * @brief tagastab ruudu indexid, mille sisse jäävad (akna) Koordinaadid x ja y 
+ * @brief tagastab ruudu indexid (rida ja veerg), mille sisse jäävad (akna) Koordinaadid x ja y 
  * 
  * @param x 
  * @param y 
- * @return std::pair<int,int> 
+ * @return std::pair<int,int>
  */
 std::pair<int,int> getRuutMilleSeesKoordinaadid(float x, float y){
     for (int i = 0; i < 9; i++){
@@ -131,17 +132,105 @@ std::pair<int,int> getRuutMilleSeesKoordinaadid(float x, float y){
     return std::make_pair(-1,-1);//ei leidnud
 }
 
-
+/**
+ * @brief muudab numbri ruudus mis on kohal pos uueks (uus_nr) ja valideerib sudoku laua
+ * 
+ * @param pos täisarvude paar (rida ja veerg)
+ * @param uus_nr 
+ */
+void muudaNr(std::pair<int, int> pos, int uus_nr){
+    laud[pos.first][pos.second] = uus_nr;
+    //TODO valideeri
+    nrid[pos.first][pos.second].setString(std::to_string(uus_nr));
+}
 
 int main()
 {
-    std::cout << "appi" << std::endl;
+    //std::cout << "kui liigutan initJoonistatava enda funktsiooni siis programm crashib või joonistab ekraanile valesti ja terminal ka millegipärast ei tööta kuigi üritasin teha debug build, seega vabandan et pole kood funktsioonis" << std::endl;
+    
     //INIT JOONISTATAV
-    initJoonistatav();
     sf::RectangleShape selekteeritud_highlight(sf::Vector2f(w_ruut-1, w_ruut-1)); //orans taust selekteeritud ruudule
     selekteeritud_highlight.setFillColor({230, 153, 0});
-    
 
+    sf::Font font; //nr'ite font
+    font.loadFromFile("SuPostcode-VGeLe.ttf");
+
+    bool initFunktsioonEiToota = true;
+    if(initFunktsioonEiToota){//initJoonistatav() sisu on siin;
+        sf::Vertex trellid[20][2]; //jooned numbrite vahel
+        for (int i = 0; i < 10; i++)
+        {
+            //horisontaalsed
+            trellid[i][0] = sf::Vertex(sf::Vector2f(0, w_ruut*i));
+            trellid[i][1] = sf::Vertex(sf::Vector2f(wh, w_ruut*i));
+            //vertikaalsed
+            trellid[i+10][0] = sf::Vertex(sf::Vector2f(w_ruut*i, 0));
+            trellid[i+10][1] = sf::Vertex(sf::Vector2f(w_ruut*i, wh));
+        }
+
+        
+        
+        //väärtustan etteantud laua järgi mittemuudetavad nrid
+        for (int i = 0; i < 9; i++)
+        {
+            for (int j = 0; j < 9; j++)
+            {
+                nrid[i][j] = sf::Text("", font);
+
+                if(laud[i][j] == 0){
+                    muudetav[i][j] = true;
+                    nrid[i][j].setFillColor({56,84,45}); //muudetava värv
+                }else{ //ette antud numbrid mida muuta ei saa
+                    muudetav[i][j] = false;
+                    nrid[i][j].setString(std::to_string(laud[i][j]));
+                    nrid[i][j].setStyle(sf::Text::Bold);
+                    nrid[i][j].setFillColor({200,204,200}); //const värv
+                }
+                
+                //et nr'id oleksid kenasti ruutude sees
+                nrid[i][j].setPosition((j*w_ruut)+11,(i*w_ruut)+2);
+                nrid[i][j].setCharacterSize(50);
+                
+            }
+        }
+
+        //TAUST prerender
+        
+        if (!taust.create(wh, wh))
+        {
+            std::cout << "taustaga error" << std::endl;
+            //return;
+        }
+
+        taust.clear();
+        
+        //3x3 eristav taustavärv
+        sf::RectangleShape kolmx_rectangle(sf::Vector2f(3*w_ruut, 3*w_ruut));
+        kolmx_rectangle.setFillColor({49,22,22});
+
+        kolmx_rectangle.setPosition(sf::Vector2f(0*w_ruut,3*w_ruut));
+        taust.draw(kolmx_rectangle);
+
+        kolmx_rectangle.setPosition(sf::Vector2f(3*w_ruut,0*w_ruut));
+        taust.draw(kolmx_rectangle);
+
+        kolmx_rectangle.setPosition(sf::Vector2f(3*w_ruut,6*w_ruut));
+        taust.draw(kolmx_rectangle);
+
+        kolmx_rectangle.setPosition(sf::Vector2f(6*w_ruut,3*w_ruut));
+        taust.draw(kolmx_rectangle);
+
+        //jooned
+        for (int i = 0; i < 20; i++){
+            taust.draw(trellid[i], 2, sf::Lines);
+        }
+
+        //TODO muutumatud nr'id, et ei peaks iga kord eraldi neid joonistama
+        
+        taust.display();
+    }else{
+        //initJoonistatav();
+    }
     
     const sf::Texture& taust_texture = taust.getTexture();
     sf::Sprite taust_sprite(taust_texture);
@@ -164,37 +253,34 @@ int main()
                         selekteeritud.second = ruut.second;
 
                         selekteeritud_highlight.setPosition(sf::Vector2f((ruut.second*w_ruut)+0,(ruut.first*w_ruut)+1));
-                        
-                        //laud[6][6]++;
-                        //
                     }
                 }
             }
-
+            
             //numbriklahvide event
-            if(event.type == sf::Event::KeyReleased && selekteeritud.first != -1){ //on midagi selekteeritud
-                //ei viitsind switch teha
+            if(event.type == sf::Event::KeyReleased && selekteeritud.first != -1 && selekteeritud.second != -1){ //on midagi selekteeritud
+                //ei viitsinud elegantsemalt ega isegi switch teha
                 if (event.key.code == sf::Keyboard::Num1){
-                    laud[selekteeritud.first][selekteeritud.second] = 1;
-                    nrid[selekteeritud.first][selekteeritud.second].setString("1");
+                    muudaNr(selekteeritud, 1);
                 }else if (event.key.code == sf::Keyboard::Num2){
-                    laud[selekteeritud.first][selekteeritud.second] = 2;
-                    nrid[selekteeritud.first][selekteeritud.second].setString("2");
-                }/*else if (event.key.code == sf::Keyboard::Num3){
-
+                    muudaNr(selekteeritud, 2);
+                }else if (event.key.code == sf::Keyboard::Num3){
+                    muudaNr(selekteeritud, 3);
                 }else if (event.key.code == sf::Keyboard::Num4){
-
+                    muudaNr(selekteeritud, 4);
                 }else if (event.key.code == sf::Keyboard::Num5){
-
+                    muudaNr(selekteeritud, 5);
                 }else if (event.key.code == sf::Keyboard::Num6){
-
+                    muudaNr(selekteeritud, 6);
                 }else if (event.key.code == sf::Keyboard::Num7){
-
+                    muudaNr(selekteeritud, 7);
                 }else if (event.key.code == sf::Keyboard::Num8){
-
+                    muudaNr(selekteeritud, 8);
                 }else if (event.key.code == sf::Keyboard::Num9){
-
-                }*/
+                    muudaNr(selekteeritud, 9);
+                }else if (event.key.code == sf::Keyboard::Num0){
+                    muudaNr(selekteeritud, 0);
+                }
             }
         }
 
