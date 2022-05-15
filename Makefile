@@ -5,3 +5,6 @@ compile:
 
 link: #-sfml-main-d
 	g++ main.o -o sudoku -L "SFML-2.5.1/lib"  -lsfml-graphics-s-d -lsfml-window-s-d -lsfml-system-s-d -lopengl32 -lfreetype -lwinmm -lgdi32 -mwindows
+
+clean:
+	rm -f *.o sudoku
