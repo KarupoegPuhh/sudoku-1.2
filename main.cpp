@@ -41,6 +41,8 @@ sf::RenderWindow window(sf::VideoMode(wh, wh), "sudoku");
 sf::RenderTexture taust;
 sf::Text nrid[9][9];//Text elemendid mis näitavad numbreid laual
 
+//TODO värvid siia
+
 /**
  * @brief seab valmis enamuse ekraanile joonistatava (taust, numbrid)
  * EI OLE KASUTUSES
@@ -150,13 +152,13 @@ std::pair<int,int> getRuutMilleSeesKoordinaadid(float x, float y){
 /**
  * @brief kontrollib kas uus_nr kohal pos on selles reas ja veerus ainus omasugune
  * 
- * @param pos 
+ * @param pos täisarvude paar (rida ja veerg sudoku laual)
  * @param uus_nr 
  * @return true 
  * @return false kui juba reas või veerus on see nr
  */
 bool on_lubatud_reas_ja_veerus(std::pair<int, int> pos, int uus_nr){
-    if(uus_nr == 0){ //et saaks tühjaks teha ruutu
+    if(uus_nr == 0){ //et saaks tühjaks teha ruutu, alati lubatud
         return true;
     }
 
@@ -172,25 +174,62 @@ bool on_lubatud_reas_ja_veerus(std::pair<int, int> pos, int uus_nr){
     return true;
 }
 
+/**
+ * @brief kontrollib kas uus_nr kohal pos on ümbritsevas 3x3 blokis ainus omasugune
+ * 
+ * @param pos täisarvude paar (rida ja veerg sudoku laual)
+ * @param uus_nr 
+ * @return true 
+ * @return false kui selles blokis on juba sama nr
+ */
 bool on_lubatud_3x3s(std::pair<int, int> pos, int uus_nr){
-    return false; //TODO
+    if(uus_nr == 0){ //et saaks tühjaks teha ruutu, alati lubatud
+        return true;
+    }
+
+    int rida = 0; 
+    int veerg = 0;
+    //millest alustada
+    
+    if (pos.first < 3){
+        //rida = 0;
+    }else if (pos.first < 6){
+        rida = 3;
+    }else{
+        rida = 6;
+    }
+    
+    if (pos.second < 3){
+        //veerg = 0;
+    }else if (pos.second < 6){
+        veerg = 3;
+    }else{
+        veerg = 6;
+    }
+
+    //kontrollin 3x3 blokki
+    for (int i = rida; i < rida+3; i++){
+        for (int j = veerg; j < veerg+3; j++){
+            if(laud[i][j] == uus_nr && !(pos.first == i && pos.second == j)){
+                //nrid[i][j].setFillColor({200,0,50});
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 /**
  * @brief muudab numbri ruudus mis on kohal pos uueks (uus_nr) ja valideerib sudoku laua
  * 
- * @param pos täisarvude paar (rida ja veerg)
+ * @param pos täisarvude paar (rida ja veerg sudoku laual)
  * @param uus_nr 
  */
 void muudaNr(std::pair<int, int> pos, int uus_nr){
     
     //valideerin
-    if(on_lubatud_reas_ja_veerus(pos, uus_nr)){
-        //on_lubatud_3x3s(pos, uus_nr);
-        
-    //}
+    if(on_lubatud_reas_ja_veerus(pos, uus_nr) && on_lubatud_3x3s(pos, uus_nr)){
         nrid[pos.first][pos.second].setFillColor({200,200,200});
-        
     }else{
         nrid[pos.first][pos.second].setFillColor({200,0,0});
     }
