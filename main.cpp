@@ -8,6 +8,7 @@ int w_ruut = wh/9; //1 ruudu laius/kõrgus
 int laud[9][9] //kõik numbrid sudoku laual, 0 - pole määratud nrit
  = //hetkel algväärtustan mängu siin, TODO võimalus väärtustada/importida .ss vms failist sudoku algseis
 {
+    /*
     {5, 3, 4, 0, 7, 8, 0, 0, 2},
     {0, 7, 0, 1, 9, 5, 3, 4, 8},
     {1, 9, 8, 3, 4, 2, 5, 6, 7},
@@ -17,6 +18,18 @@ int laud[9][9] //kõik numbrid sudoku laual, 0 - pole määratud nrit
     {0, 6, 0, 5, 3, 7, 0, 8, 4},
     {2, 8, 0, 4, 1, 9, 6, 3, 5},
     {3, 4, 5, 2, 8, 6, 1, 7, 9}
+    */
+    //*
+    {7, 8, 0, 4, 0, 0, 1, 2, 0},
+    {6, 0, 0, 0, 7, 5, 0, 0, 9},
+    {0, 0, 0, 6, 0, 1, 0, 7, 8},
+    {0, 0, 7, 0, 4, 0, 2, 6, 0},
+    {0, 0, 1, 0, 5, 0, 9, 3, 0},
+    {9, 0, 4, 0, 6, 0, 0, 0, 5},
+    {0, 7, 0, 3, 0, 0, 0, 1, 2},
+    {1, 2, 0, 0, 0, 7, 4, 0, 0},
+    {0, 4, 9, 2, 0, 6, 0, 0, 7}
+    //*/
 };
 
 bool muudetav[9][9]; //kas sel kohal on number muudetav
@@ -132,6 +145,34 @@ std::pair<int,int> getRuutMilleSeesKoordinaadid(float x, float y){
     return std::make_pair(-1,-1);//ei leidnud
 }
 
+
+
+/**
+ * @brief kontrollib kas uus_nr kohal pos on selles reas ja veerus ainus omasugune
+ * 
+ * @param pos 
+ * @param uus_nr 
+ * @return true 
+ * @return false kui juba reas või veerus on see nr
+ */
+bool on_lubatud_reas_ja_veerus(std::pair<int, int> pos, int uus_nr){
+    for (int i = 0; i < 9; i++){
+        if (uus_nr == laud[pos.first][i]){
+            //nrid[pos.first][i].setColor({200,0,0});
+            return false;
+        }
+        if (uus_nr == laud[i][pos.second]){
+            //nrid[i][pos.second].setColor({200,0,0});
+            return false;
+        }
+    }
+    return true;
+}
+
+bool on_lubatud_3x3s(std::pair<int, int> pos, int uus_nr){
+    return false; //TODO
+}
+
 /**
  * @brief muudab numbri ruudus mis on kohal pos uueks (uus_nr) ja valideerib sudoku laua
  * 
@@ -139,9 +180,13 @@ std::pair<int,int> getRuutMilleSeesKoordinaadid(float x, float y){
  * @param uus_nr 
  */
 void muudaNr(std::pair<int, int> pos, int uus_nr){
-    laud[pos.first][pos.second] = uus_nr;
-    //TODO valideeri
-    nrid[pos.first][pos.second].setString(std::to_string(uus_nr));
+    
+    //valideerin
+    if(on_lubatud_reas_ja_veerus(pos, uus_nr)){
+    //on_lubatud_3x3s(pos, uus_nr);
+        laud[pos.first][pos.second] = uus_nr;
+        nrid[pos.first][pos.second].setString(std::to_string(uus_nr));
+    }
 }
 
 int main()
@@ -150,7 +195,7 @@ int main()
     
     //INIT JOONISTATAV
     sf::RectangleShape selekteeritud_highlight(sf::Vector2f(w_ruut-1, w_ruut-1)); //orans taust selekteeritud ruudule
-    selekteeritud_highlight.setFillColor({230, 153, 0});
+    selekteeritud_highlight.setFillColor({52, 52, 52}); //{230, 153, 0}
 
     sf::Font font; //nr'ite font
     font.loadFromFile("SuPostcode-VGeLe.ttf");
@@ -179,12 +224,12 @@ int main()
 
                 if(laud[i][j] == 0){
                     muudetav[i][j] = true;
-                    nrid[i][j].setFillColor({56,84,45}); //muudetava värv
+                    nrid[i][j].setFillColor({220,220,45}); //muudetava värv
                 }else{ //ette antud numbrid mida muuta ei saa
                     muudetav[i][j] = false;
                     nrid[i][j].setString(std::to_string(laud[i][j]));
                     nrid[i][j].setStyle(sf::Text::Bold);
-                    nrid[i][j].setFillColor({200,204,200}); //const värv
+                    nrid[i][j].setFillColor({150,204,100}); //const värv
                 }
                 
                 //et nr'id oleksid kenasti ruutude sees
