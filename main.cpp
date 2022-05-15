@@ -156,13 +156,16 @@ std::pair<int,int> getRuutMilleSeesKoordinaadid(float x, float y){
  * @return false kui juba reas või veerus on see nr
  */
 bool on_lubatud_reas_ja_veerus(std::pair<int, int> pos, int uus_nr){
+    if(uus_nr == 0){ //et saaks tühjaks teha ruutu
+        return true;
+    }
+
     for (int i = 0; i < 9; i++){
         if (uus_nr == laud[pos.first][i]){
-            //nrid[pos.first][i].setColor({200,0,0});
+            //nrid[pos.first][i].setFillColor({200,0,0});
             return false;
         }
         if (uus_nr == laud[i][pos.second]){
-            //nrid[i][pos.second].setColor({200,0,0});
             return false;
         }
     }
@@ -183,10 +186,18 @@ void muudaNr(std::pair<int, int> pos, int uus_nr){
     
     //valideerin
     if(on_lubatud_reas_ja_veerus(pos, uus_nr)){
-    //on_lubatud_3x3s(pos, uus_nr);
-        laud[pos.first][pos.second] = uus_nr;
-        nrid[pos.first][pos.second].setString(std::to_string(uus_nr));
+        //on_lubatud_3x3s(pos, uus_nr);
+        
+    //}
+        nrid[pos.first][pos.second].setFillColor({200,200,200});
+        
+    }else{
+        nrid[pos.first][pos.second].setFillColor({200,0,0});
     }
+    //muudan ära
+    laud[pos.first][pos.second] = uus_nr;
+    nrid[pos.first][pos.second].setString(std::to_string(uus_nr));
+    
 }
 
 int main()
